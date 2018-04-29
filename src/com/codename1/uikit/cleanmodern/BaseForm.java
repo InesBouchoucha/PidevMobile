@@ -38,7 +38,7 @@ import com.codename1.ui.util.Resources;
  *
  * @author Shai Almog
  */
-public class BaseForm extends Form {
+public class BaseForm extends Form  {
 
     public BaseForm() {
     }

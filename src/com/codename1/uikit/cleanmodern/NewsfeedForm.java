@@ -29,6 +29,7 @@ import com.codename1.ui.ButtonGroup;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Display;
+import com.codename1.ui.EncodedImage;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
@@ -37,6 +38,9 @@ import com.codename1.ui.RadioButton;
 import com.codename1.ui.Tabs;
 import com.codename1.ui.TextArea;
 import com.codename1.ui.Toolbar;
+import com.codename1.ui.URLImage;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
@@ -44,7 +48,12 @@ import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.util.Resources;
+import java.io.IOException;
 import java.util.ArrayList;
+
+
+
+  
 
 /**
  * The newsfeed form
@@ -52,7 +61,9 @@ import java.util.ArrayList;
  * @author Shai Almog
  */
 public class NewsfeedForm extends BaseForm {
-
+   Resources res;   
+  EncodedImage enc;
+    Container cnt, cntForm;
     public NewsfeedForm(Resources res) {
         super("Newsfeed", BoxLayout.y());
         Toolbar tb = new Toolbar(true);
@@ -140,14 +151,24 @@ public class NewsfeedForm extends BaseForm {
         addOrientationListener(e -> {
             updateArrowPosition(barGroup.getRadioButton(barGroup.getSelectedIndex()), arrow);
         });
-        ProduitService p = new ProduitService();
-        ArrayList<Produit>lis =p.getList2();
-        System.out.println(lis.toString());
-       /*addButton(res.getImage("news-item-1.jpg"), "Morbi per tincidunt tellus sit of amet eros laoreet.", false, 26, 32);
-        addButton(res.getImage("news-item-2.jpg"), "Fusce ornare cursus masspretium tortor integer placera.", true, 15, 21);
-        addButton(res.getImage("news-item-3.jpg"), "Maecenas eu risus blanscelerisque massa non amcorpe.", false, 36, 15);
-        addButton(res.getImage("news-item-4.jpg"), "Pellentesque non lorem diam. Proin at ex sollicia.", false, 11, 9);*/
-    }
+        
+        
+        
+        ProduitService prod = new ProduitService();
+        ArrayList<Produit>lis =prod.getList2();
+          for (Produit P : lis)
+            {
+            try {
+                enc = EncodedImage.create("/giphy.gif");
+            } catch (IOException ex) {
+               }
+          
+                Image image = URLImage.createToStorage(enc, P.getImage_produit(), "http://localhost:8080/PIDEV-one-to-many/web/imagesPidev/" + P.getImage_produit());
+                addButtonProd(image,P.getNom(), P.getPrix());
+ 
+      //addButton(res.getImage(P.getImage_produit()), P.getNom(), false, 26, 32);
+       //addButton(res.getImage("news-item-2.jpg"), "ines bouchoucha joyeuuuuuuuuux ", true, 15, 21);
+           } }
     
     private void updateArrowPosition(Button b, Label arrow) {
         arrow.getUnselectedStyle().setMargin(LEFT, b.getX() + b.getWidth() / 2 - arrow.getWidth() / 2);
@@ -227,7 +248,45 @@ public class NewsfeedForm extends BaseForm {
        add(cnt);
        image.addActionListener(e -> ToastBar.showMessage(title, FontImage.MATERIAL_INFO));
    }
-    
+   
+    private void addButtonProd(Image img, String nom,Double prix) {
+       int height = Display.getInstance().convertToPixels(11.5f);
+       int width = Display.getInstance().convertToPixels(14f);
+       Button image = new Button(img.fill(width, height));
+       image.setUIID("Label");
+       Container cnt = BorderLayout.west(image);
+       cnt.setLeadComponent(image);
+      
+       
+       TextArea ta = new TextArea(nom);
+       ta.setUIID("NewsTopLine");
+       ta.setEditable(false);
+
+
+       Label likes = new Label(prix + " DT ", "");
+        likes.setTextPosition(RIGHT);
+       if(prix!=0) {
+           FontImage.setMaterialIcon(likes, FontImage.MATERIAL_FAVORITE);
+       } else {
+           Style s = new Style(likes.getUnselectedStyle());
+           s.setFgColor(0xff2d55);
+           FontImage heartImage = FontImage.createMaterial(FontImage.MATERIAL_FAVORITE, s);
+           likes.setIcon(heartImage);
+       }
+       
+       cnt.add(BorderLayout.CENTER, 
+               BoxLayout.encloseY(
+                       ta,
+                       BoxLayout.encloseX(likes)
+               ));
+       add(cnt);
+        image.requestFocus();
+        image.addActionListener(e -> new InfoproduitForm(res).show());
+
+ 
+   }
+   
+
     private void bindButtonSelection(Button b, Label arrow) {
         b.addActionListener(e -> {
             if(b.isSelected()) {

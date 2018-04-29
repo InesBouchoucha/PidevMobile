@@ -27,7 +27,7 @@ public class ProduitService {
       public ArrayList<Produit> getList2() {
         ArrayList<Produit> listTasks = new ArrayList<>();
         ConnectionRequest con = new ConnectionRequest();
-        con.setUrl("http://localhost:8080/PIDEV-one-to-many/web/app_dev.php/mobile/readProduit");
+        con.setUrl("http://localhost:8080/PIDEV-one-to-many/web/app_dev.php/mobile/affProduit");
         con.addResponseListener(new ActionListener<NetworkEvent>() {
             @Override
             public void actionPerformed(NetworkEvent evt) {
@@ -47,6 +47,7 @@ public class ProduitService {
                         task.setId((int) id);
                         task.setNom(obj.get("nom").toString());
                         task.setPrix(Double.parseDouble(obj.get("prix").toString()));
+                         task.setImage_produit(obj.get("imageProduit").toString());
                         listTasks.add(task);
 
                     }
@@ -58,6 +59,8 @@ public class ProduitService {
         NetworkManager.getInstance().addToQueueAndWait(con);
         return listTasks;
     }
-    
+      
+      
+     
     
 }
